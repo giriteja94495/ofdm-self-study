@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <title>Communication Systems </title>
+</head>
+<body>
+    <h1 style="text-align: center"> Communication Systems Self-Study <hr> ORTHOGONAL FREQUENCY DIVISON MULTIPLEXING</h1><br>
+    <h2 style="text-align: center">Matlab code for OFDM Modulation</h2>
+    <div>    <h2>click below to download the ppt <br><a href="selfstudy.ppt" download><i class="fa fa-download" aria-hidden="true"></i></a></h2>
+    </div>
+
+    <p>clc;
+        clear all;<br>
+        close all;<br>
+      
+        % Initiation<br>
+        
+        no_of_data_bits = 64        %Number of bits per channel extended to 128<br>
+        M =4       %Number of subcarrier channel<br>
+        n=256;     %Total number of bits to be transmitted at the transmitter<br>
+        block_size = 16;     %Size of each OFDM block to add cyclic prefix<br>
+        cp_len = floor(0.1 * block_size);    %Length of the cyclic prefix<br>
+
+        % Transmitter<br>
+  
+     
+        % Source generation and modulation<br>
+  
+        % Generate random data source to be transmitted of length 64<br>
+        data = randsrc(1, no_of_data_bits, 0:M-1);<br>
+        figure(1)<br>
+        stem(data); <br>
+        grid on; <br>
+        xlabel('Data Points'); ylabel('Amplitude')<br>
+        title('Original Data ')<br>
+                % Perform QPSK modulation on the input source data<br>
+        qpsk_modulated_data = pskmod(data, M);<br>
+        figure(2);<br>
+        stem(qpsk_modulated_data);<br>
+        title('QPSK Modulation')<br>
+     
+        % Converting the series data stream into four parallel data stream to form<br>
+        % four sub carriers<br>
+        S2P = reshape(qpsk_modulated_data, no_of_data_bits/M,M)<br>
+        Sub_carrier1 = S2P(:,1)<br>
+        Sub_carrier2 = S2P(:,2)<br>
+        Sub_carrier3 = S2P(:,3)<br>
+        Sub_carrier4 = S2P(:,4)<br>
+        figure(3);<br>
+        subplot(4,1,1);<br>
+        stem(Sub_carrier1)<br>
+        title('Subcarrier1');<br>
+        grid on;<br>
+        subplot(4,1,2)<br>
+        stem(Sub_carrier2)<br>
+        title('Subcarrier2')<br>
+        grid on;<br>
+        subplot(4,1,3)<br>
+        stem(Sub_carrier3)<br>
+        title('Subcarrier3')<br>
+        grid on;<br>
+        subplot(4,1,4)<br>
+        stem(Sub_carrier4)<br>
+        title('Subcarrier4')<br>
+        grid on;<br>
+ 
+        % IFFT OF FOUR SUB_CARRIERS<br>
+
+        number_of_subcarriers=4;<br>
+        cp_start=block_size-cp_len;<br>
+        ifft_Subcarrier1 = ifft(Sub_carrier1)<br>
+        ifft_Subcarrier2 = ifft(Sub_carrier2)<br>
+        ifft_Subcarrier3 = ifft(Sub_carrier3)<br>
+        ifft_Subcarrier4 = ifft(Sub_carrier4)<br>
+        figure(4);<br>
+        subplot(4,1,1)<br>
+        plot(real(ifft_Subcarrier1),'r'),<br>
+        title('IFFT on all the sub-carriers')<br>
+        subplot(4,1,2),plot(real(ifft_Subcarrier2),'c')<br>
+        subplot(4,1,3),plot(real(ifft_Subcarrier3),'b')<br>
+        subplot(4,1,4),plot(real(ifft_Subcarrier4),'g')<br>
+    
+        % ADD-CYCLIC PREFIX<br>
+    
+        for i=1:number_of_subcarriers,<br>
+        ifft_Subcarrier(:,i) = ifft((S2P(:,i)),16)      % 16 is the ifft point<br>
+        for j=1:cp_len,<br>
+        cyclic_prefix(j,i) = ifft_Subcarrier(j+cp_start,i)<br>
+        end<br>
+        Append_prefix(:,i) = vertcat( cyclic_prefix(:,i), ifft_Subcarrier(:,i))<br>
+        % Appends prefix to each subcarriers<br>
+        end<br>
+        A1=Append_prefix(:,1);<br>
+        A2=Append_prefix(:,2);<br>
+        A3=Append_prefix(:,3);<br>
+        A4=Append_prefix(:,4);<br>
+        figure(5);<br>
+        subplot(4,1,1),plot(real(A1),'r'),title('Cyclic prefix added to all the sub-carriers')<br>
+        subplot(4,1,2),plot(real(A2),'c')<br>
+        subplot(4,1,3),plot(real(A3),'b')<br>
+        subplot(4,1,4),plot(real(A4),'g')<br>
+        figure(11);<br>
+        plot((real(A1)),'r'),title('Orthogonality'),hold on ,plot((real(A2)),'c'),hold on ,<br>
+        plot((real(A3)),'b'),hold on ,plot((real(A4)),'g');<br>
+        hold on <br>
+        grid on<br>
+        %Convert to serial stream for transmission<br>
+        [rows_Append_prefix cols_Append_prefix]=size(Append_prefix)<br>
+        len_ofdm_data = rows_Append_prefix*cols_Append_prefix<br>
+                % OFDM signal to be transmitted<br>
+        ofdm_signal = reshape(Append_prefix, 1, len_ofdm_data);<br>
+        figure(6),plot(real(ofdm_signal));<br>
+         xlabel('Time'); ylabel('Amplitude');<br>
+        title('OFDM Signal');<br>
+        grid on;<br>
+    </p>
+    <h1>Thanks for your Patience..Hope you enjoy the Quarantine with Productive Work
+        
+        
+    </h1>
+   <a href="https://www.who.int/emergencies/diseases/novel-coronavirus-2019/advice-for-public" style="justify-content: center" class="okay"><img src="corona.jpg" alt=""></a> 
+
+   <p class="shit">Developed by <a href="https://github.com/giriteja94495" class="giri">BILLE GIRITEJA </a></p>
+</body>
+</html>
