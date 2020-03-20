@@ -9,8 +9,9 @@ div{
     text-align: center;
 }
 img{
-    height: 500px;
-    width: 400px;
+    height: 350px;
+    width: 300px;
+    background-repeat: no-repeat;
 }
 i{
     color: white;
@@ -19,8 +20,9 @@ i{
     text-align: center;
 }
 .okay{
-    margin-left: 100px;
-    padding-left: 200px;
+   margin-left: 0px;
+   margin-right: 15px;
+    padding-left: 100px;
 }
 .giri{
     color: white;
